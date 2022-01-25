@@ -17,6 +17,7 @@ COMMANDS:
 OPTIONS:
     -h, --help              Print help information
     --cask                  Mark as cask packages
+    --tap                   Mark as taps
 EOF
 }
 
@@ -66,6 +67,7 @@ parse_args() {
 }
 
 CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/brewp
+TAP_LIST="$CACHE_DIR/taps.txt"
 PACKAGE_LIST="$CACHE_DIR/packages.txt"
 CASK_PACKAGE_LIST="$CACHE_DIR/cask_packages.txt"
 
@@ -74,6 +76,17 @@ clean() {
 }
 
 install() {
+    if [[ -f "$TAP_LIST" ]]; then
+        local already_tapped=$(brew tap)
+        for line in "${(@f)"$(<$TAP_LIST)"}"
+        do
+            if [[ ! $already_tapped =~ $line ]]; then
+                echo "Tapping $line ..."
+                brew tap $line
+            fi
+        done
+    fi
+
     if [[ -f "$PACKAGE_LIST" ]]; then
         local installed_pkgs=$(brew list --formula -1)
         for line in "${(@f)"$(<$PACKAGE_LIST)"}"
@@ -107,8 +120,12 @@ push() {
         mkdir $CACHE_DIR
     fi
 
-    if [[ $# -eq 2 ]] && [[ "$2" = '--cask' ]]; then
-        package_list_path="$CASK_PACKAGE_LIST"
+    if [[ $# -eq 2 ]]; then
+        if [[ "$2" = '--cask' ]]; then
+            package_list_path="$CASK_PACKAGE_LIST"
+        elif [[ "$2" = '--tap' ]]; then
+            package_list_path="$TAP_LIST"
+        fi
     fi
 
     if [[ -f $package_list_path ]]; then
