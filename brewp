@@ -1,0 +1,142 @@
+#!/usr/bin/env zsh
+
+set -u
+
+usage() {
+    cat 1>&2 <<EOF
+brewp
+A useful tool for managing homebrew packages.
+
+USAGE:
+    brewp <command|package> [OPTIONS]
+
+COMMANDS:
+    install                 Install uninstalled packages
+    clean                   Remove cache files
+
+OPTIONS:
+    -h, --help              Print help information
+    --cask                  Mark as cask packages
+EOF
+}
+
+say() {
+    echo "brewp: $@"
+}
+
+err() {
+    say "$@" >&2
+    exit 1
+}
+
+check_cmd() {
+    command -v "$1" >/dev/null 2>&1
+    return $?
+}
+
+need_cmd() {
+    if ! check_cmd "$1"; then
+        err "need '$1' (command not found)"
+    fi
+}
+
+parse_args() {
+    # No arguments
+    if [[ $# -eq 0 ]]; then
+        usage
+        exit 1
+    fi
+
+    # check if we have to use /dev/tty to prompt the user
+    local need_tty=yes
+    for arg in "$@"; do
+        case "$arg" in
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            -y)
+                # user wants to skip the prompt -- we don't need /dev/tty
+                need_tty=no
+                ;;
+            *)
+                ;;
+        esac
+    done
+}
+
+CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/brewp
+PACKAGE_LIST="$CACHE_DIR/packages.txt"
+CASK_PACKAGE_LIST="$CACHE_DIR/cask_packages.txt"
+
+clean() {
+    rm -rf "$CACHE_DIR"
+}
+
+install() {
+    if [[ -f "$PACKAGE_LIST" ]]; then
+        local installed_pkgs=$(brew list --formula -1)
+        for line in "${(@f)"$(<$PACKAGE_LIST)"}"
+        do
+            if [[ ! $installed_pkgs =~ $line ]]; then
+                echo "Installing $line ..."
+                brew install $line
+            fi
+        done
+    fi
+
+    if [[ -f "$CASK_PACKAGE_LIST" ]]; then
+        local installed_cask_pkgs=$(brew list --cask -1)
+        for line in "${(@f)"$(<$CASK_PACKAGE_LIST)"}"
+        do
+            if [[ ! $installed_cask_pkgs =~ $line ]]; then
+                echo "Installing $line with --cask ..."
+                brew install --cask $line
+            fi
+        done
+    fi
+
+    clean
+}
+
+push() {
+    local pacakage_name="$1"
+    local package_list_path="$PACKAGE_LIST"
+
+    if [[ ! -d $CACHE_DIR ]]; then
+        mkdir $CACHE_DIR
+    fi
+
+    if [[ $# -eq 2 ]] && [[ "$2" = '--cask' ]]; then
+        package_list_path="$CASK_PACKAGE_LIST"
+    fi
+
+    if [[ -f $package_list_path ]]; then
+        echo $pacakage_name >> $package_list_path
+    else
+        echo $pacakage_name > $package_list_path
+    fi
+}
+
+main() {
+    need_cmd brew
+    need_cmd echo
+    need_cmd mkdir
+    need_cmd rm
+
+    parse_args $@
+
+    case "${@[1]}" in
+        install)
+            install
+            ;;
+        clean)
+            clean
+            ;;
+        *)
+            push $@
+            ;;
+    esac
+}
+
+main "$@" || exit 1
