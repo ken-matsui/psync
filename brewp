@@ -89,7 +89,7 @@ install() {
     if [[ -f "$TAP_LIST" ]]; then
         local installed_list
         if test $(find "$INSTALLED_TAP_LIST" -mtime -1 2>/dev/null); then
-            installed_list="$(<$INSTALLED_TAP_LIST)"
+            installed_list="$(cat $INSTALLED_TAP_LIST)"
         else
             installed_list="$(brew tap)"
             echo "$installed_list" >! "$INSTALLED_TAP_LIST"
@@ -107,7 +107,7 @@ install() {
     if [[ -f "$PACKAGE_LIST" ]]; then
         local installed_list
         if test $(find "$INSTALLED_PACKAGE_LIST" -mtime -1 2>/dev/null); then
-            installed_list="$(<$INSTALLED_PACKAGE_LIST)"
+            installed_list="$(cat $INSTALLED_PACKAGE_LIST)"
         else
             installed_list="$(brew list --formula -1)"
             echo "$installed_list" >! "$INSTALLED_PACKAGE_LIST"
@@ -125,7 +125,7 @@ install() {
     if [[ -f "$CASK_PACKAGE_LIST" ]]; then
         local installed_list
         if test $(find "$INSTALLED_CASK_PACKAGE_LIST" -mtime -1 2>/dev/null); then
-            installed_list="$(<$INSTALLED_CASK_PACKAGE_LIST)"
+            installed_list="$(cat $INSTALLED_CASK_PACKAGE_LIST)"
         else
             installed_list="$(brew list --cask -1)"
             echo "$installed_list" >! "$INSTALLED_CASK_PACKAGE_LIST"
@@ -171,6 +171,7 @@ main() {
     need_cmd echo
     need_cmd mkdir
     need_cmd rm
+    need_cmd cat
 
     parse_args $@
 
