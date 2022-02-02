@@ -12,7 +12,7 @@ USAGE:
 
 COMMANDS:
     install                 Install uninstalled packages
-    clean                   Remove cache files
+    clean                   Remove files created by brewp
 
 OPTIONS:
     -h, --help              Print help information
@@ -79,6 +79,7 @@ INSTALLED_CASK_PACKAGE_LIST="$DATA_DIR/brew-cask-packages.txt"
 
 clean() {
     rm -rf "$CACHE_DIR"
+    rm -rf "$DATA_DIR"
 }
 
 install_cask_pkgs() {
@@ -150,7 +151,7 @@ install() {
     install_pkgs
     install_cask_pkgs
 
-    clean
+    rm -rf "$CACHE_DIR"
 }
 
 push() {
