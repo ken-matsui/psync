@@ -84,7 +84,7 @@ clean() {
 install() {
     if [[ -f "$TAP_LIST" ]]; then
         local installed_list
-        if test $(find "$INSTALLED_TAP_LIST" -mtime -1); then
+        if test $(find "$INSTALLED_TAP_LIST" -mtime -1 2>/dev/null); then
             installed_list="$(<$INSTALLED_TAP_LIST)"
         else
             installed_list="$(brew tap)"
@@ -102,7 +102,7 @@ install() {
 
     if [[ -f "$PACKAGE_LIST" ]]; then
         local installed_list
-        if test $(find "$INSTALLED_PACKAGE_LIST" -mtime -1); then
+        if test $(find "$INSTALLED_PACKAGE_LIST" -mtime -1 2>/dev/null); then
             installed_list="$(<$INSTALLED_PACKAGE_LIST)"
         else
             installed_list="$(brew list --formula -1)"
@@ -120,7 +120,7 @@ install() {
 
     if [[ -f "$CASK_PACKAGE_LIST" ]]; then
         local installed_list
-        if test $(find "$INSTALLED_CASK_PACKAGE_LIST" -mtime -1); then
+        if test $(find "$INSTALLED_CASK_PACKAGE_LIST" -mtime -1 2>/dev/null); then
             installed_list="$(<$INSTALLED_CASK_PACKAGE_LIST)"
         else
             installed_list="$(brew list --cask -1)"
