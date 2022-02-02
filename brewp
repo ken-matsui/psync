@@ -67,9 +67,15 @@ parse_args() {
 }
 
 CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/brewp
+DATA_DIR=${XDG_DATA_HOME:-$HOME/.local/share}/brewp
+
 TAP_LIST="$CACHE_DIR/taps.txt"
 PACKAGE_LIST="$CACHE_DIR/packages.txt"
 CASK_PACKAGE_LIST="$CACHE_DIR/cask_packages.txt"
+
+INSTALLED_TAP_LIST="$DATA_DIR/brew-taps.txt"
+INSTALLED_PACKAGE_LIST="$DATA_DIR/brew-packages.txt"
+INSTALLED_CASK_PACKAGE_LIST="$DATA_DIR/brew-cask-packages.txt"
 
 clean() {
     rm -rf "$CACHE_DIR"
@@ -77,10 +83,17 @@ clean() {
 
 install() {
     if [[ -f "$TAP_LIST" ]]; then
-        local already_tapped=$(brew tap)
+        local installed_list
+        if test $(find "$INSTALLED_TAP_LIST" -mtime -1); then
+            installed_list="$(<$INSTALLED_TAP_LIST)"
+        else
+            installed_list="$(brew tap)"
+            echo "$installed_list" >! "$INSTALLED_TAP_LIST"
+        fi
+
         for line in "${(@f)"$(<$TAP_LIST)"}"
         do
-            if [[ ! $already_tapped =~ $line ]]; then
+            if [[ ! $installed_list =~ $line ]]; then
                 echo "Tapping $line ..."
                 brew tap $line
             fi
@@ -88,10 +101,17 @@ install() {
     fi
 
     if [[ -f "$PACKAGE_LIST" ]]; then
-        local installed_pkgs=$(brew list --formula -1)
+        local installed_list
+        if test $(find "$INSTALLED_PACKAGE_LIST" -mtime -1); then
+            installed_list="$(<$INSTALLED_PACKAGE_LIST)"
+        else
+            installed_list="$(brew list --formula -1)"
+            echo "$installed_list" >! "$INSTALLED_PACKAGE_LIST"
+        fi
+
         for line in "${(@f)"$(<$PACKAGE_LIST)"}"
         do
-            if [[ ! $installed_pkgs =~ $line ]]; then
+            if [[ ! $installed_list =~ $line ]]; then
                 echo "Installing $line ..."
                 brew install $line
             fi
@@ -99,10 +119,17 @@ install() {
     fi
 
     if [[ -f "$CASK_PACKAGE_LIST" ]]; then
-        local installed_cask_pkgs=$(brew list --cask -1)
+        local installed_list
+        if test $(find "$INSTALLED_CASK_PACKAGE_LIST" -mtime -1); then
+            installed_list="$(<$INSTALLED_CASK_PACKAGE_LIST)"
+        else
+            installed_list="$(brew list --cask -1)"
+            echo "$installed_list" >! "$INSTALLED_CASK_PACKAGE_LIST"
+        fi
+
         for line in "${(@f)"$(<$CASK_PACKAGE_LIST)"}"
         do
-            if [[ ! $installed_cask_pkgs =~ $line ]]; then
+            if [[ ! $installed_list =~ $line ]]; then
                 echo "Installing $line with --cask ..."
                 brew install --cask $line
             fi
