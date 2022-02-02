@@ -82,6 +82,10 @@ clean() {
 }
 
 install() {
+    if [[ ! -d $DATA_DIR ]]; then
+        mkdir $DATA_DIR
+    fi
+
     if [[ -f "$TAP_LIST" ]]; then
         local installed_list
         if test $(find "$INSTALLED_TAP_LIST" -mtime -1 2>/dev/null); then
