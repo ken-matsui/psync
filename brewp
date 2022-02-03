@@ -146,11 +146,7 @@ push() {
         fi
     fi
 
-    if [[ -f $package_list_path ]]; then
-        echo $pacakage_name >> $package_list_path
-    else
-        echo $pacakage_name > $package_list_path
-    fi
+    echo $pacakage_name >>! $package_list_path
 }
 
 main() {
