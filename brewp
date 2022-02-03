@@ -82,63 +82,33 @@ clean() {
     rm -rf "$DATA_DIR"
 }
 
-install_cask_pkgs() {
-    if [[ -f "$CASK_PACKAGE_LIST" ]]; then
-        local installed_list
-        if test $(find "$INSTALLED_CASK_PACKAGE_LIST" -mtime -1 2>/dev/null); then
-            installed_list="$(cat $INSTALLED_CASK_PACKAGE_LIST)"
-        else
-            installed_list="$(brew list --cask -1)"
-            echo "$installed_list" >! "$INSTALLED_CASK_PACKAGE_LIST"
-        fi
+install_impl() {
+    local list_path="$1"
+    local installed_list_path="$2"
+    local list_command="$3"
+    local install_command="$4"
 
-        for line in "${(@f)"$(<$CASK_PACKAGE_LIST)"}"
-        do
-            if [[ ! $installed_list =~ $line ]]; then
-                echo "Installing $line with --cask ..."
-                brew install --cask $line
-            fi
-        done
+    local installed_list
+    if test $(find "$installed_list_path" -mtime -1 2>/dev/null); then
+        installed_list="$(cat $installed_list_path)"
+    else
+        installed_list="$(eval brew $list_command)"
+        echo "$installed_list" >! "$installed_list_path"
     fi
-}
 
-install_pkgs() {
-    if [[ -f "$PACKAGE_LIST" ]]; then
-        local installed_list
-        if test $(find "$INSTALLED_PACKAGE_LIST" -mtime -1 2>/dev/null); then
-            installed_list="$(cat $INSTALLED_PACKAGE_LIST)"
-        else
-            installed_list="$(brew list --formula -1)"
-            echo "$installed_list" >! "$INSTALLED_PACKAGE_LIST"
+    local is_anything_installed=false
+    for line in "${(@f)"$(<$list_path)"}"
+    do
+        if [[ ! $installed_list =~ $line ]]; then
+            is_anything_installed=true
+            eval "brew $install_command $line"
         fi
+    done
 
-        for line in "${(@f)"$(<$PACKAGE_LIST)"}"
-        do
-            if [[ ! $installed_list =~ $line ]]; then
-                echo "Installing $line ..."
-                brew install $line
-            fi
-        done
-    fi
-}
-
-install_taps() {
-    if [[ -f "$TAP_LIST" ]]; then
-        local installed_list
-        if test $(find "$INSTALLED_TAP_LIST" -mtime -1 2>/dev/null); then
-            installed_list="$(cat $INSTALLED_TAP_LIST)"
-        else
-            installed_list="$(brew tap)"
-            echo "$installed_list" >! "$INSTALLED_TAP_LIST"
-        fi
-
-        for line in "${(@f)"$(<$TAP_LIST)"}"
-        do
-            if [[ ! $installed_list =~ $line ]]; then
-                echo "Tapping $line ..."
-                brew tap $line
-            fi
-        done
+    # Update the installed list if anything was installed
+    if "${is_anything_installed}"; then
+        installed_list="$(eval brew $list_command)"
+        echo "$installed_list" >! "$installed_list_path"
     fi
 }
 
@@ -147,9 +117,15 @@ install() {
         mkdir $DATA_DIR
     fi
 
-    install_taps
-    install_pkgs
-    install_cask_pkgs
+    if [[ -f "$TAP_LIST" ]]; then
+        install_impl "$TAP_LIST" "$INSTALLED_TAP_LIST" "tap" "tap"
+    fi
+    if [[ -f "$PACKAGE_LIST" ]]; then
+        install_impl "$PACKAGE_LIST" "$INSTALLED_PACKAGE_LIST" "list --formula -1" "install"
+    fi
+    if [[ -f "$CASK_PACKAGE_LIST" ]]; then
+        install_impl "$CASK_PACKAGE_LIST" "$INSTALLED_CASK_PACKAGE_LIST" "list --cask -1" "install --cask"
+    fi
 
     rm -rf "$CACHE_DIR"
 }
@@ -183,6 +159,7 @@ main() {
     need_cmd mkdir
     need_cmd rm
     need_cmd cat
+    need_cmd find
 
     parse_args $@
 
