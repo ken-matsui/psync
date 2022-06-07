@@ -10,6 +10,13 @@ You can install `brewp` using [`zplug`](https://github.com/zplug/zplug):
 zplug "ken-matsui/brewp", as:command
 ```
 
+Or through [`zinit`](https://github.com/zdharma-continuum/zinit):
+
+```zsh
+zinit ice as"command"
+zinit light ken-matsui/brewp
+```
+
 ## Usage
 
 `brewp` will automatically install homebrew packages when the shell startup by writing like the following script in your `.zshrc`:
@@ -24,7 +31,7 @@ brewp homebrew/cask-fonts --tap
 # Specify cask pacakages
 brewp alacritty --cask
 
-# Install only specified, uninstalled packages
+# Install only specified, not installed packages
 brewp install
 ```
 
