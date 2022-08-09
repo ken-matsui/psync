@@ -123,7 +123,8 @@ install() {
     if [[ -f "$PACKAGE_LIST" ]]; then
         install_impl "$PACKAGE_LIST" "$INSTALLED_PACKAGE_LIST" "list --formula -1" "install"
     fi
-    if [[ -f "$CASK_PACKAGE_LIST" ]]; then
+    # Cask is only for macOS
+    if [[ -f "$CASK_PACKAGE_LIST" ]] && [[ "$(uname -s)" = Darwin ]]; then
         install_impl "$CASK_PACKAGE_LIST" "$INSTALLED_CASK_PACKAGE_LIST" "list --cask -1" "install --cask"
     fi
 
@@ -139,7 +140,8 @@ push() {
     fi
 
     if [[ $# -eq 2 ]]; then
-        if [[ "$2" = '--cask' ]]; then
+        # Cask is only for macOS
+        if [[ "$2" = '--cask' ]] && [[ "$(uname -s)" = Darwin ]]; then
             package_list_path="$CASK_PACKAGE_LIST"
         elif [[ "$2" = '--tap' ]]; then
             package_list_path="$TAP_LIST"
