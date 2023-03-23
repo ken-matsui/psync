@@ -114,7 +114,7 @@ install_impl() {
 
 install() {
     if [[ ! -d $DATA_DIR ]]; then
-        mkdir $DATA_DIR
+        mkdir -p $DATA_DIR
     fi
 
     if [[ -f "$TAP_LIST" ]]; then
@@ -136,7 +136,7 @@ push() {
     local package_list_path="$PACKAGE_LIST"
 
     if [[ ! -d $CACHE_DIR ]]; then
-        mkdir $CACHE_DIR
+        mkdir -p $CACHE_DIR
     fi
 
     if [[ $# -eq 2 ]]; then
