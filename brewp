@@ -114,7 +114,7 @@ install_impl() {
 
 install() {
     if [[ ! -d $DATA_DIR ]]; then
-        mkdir -p $DATA_DIR
+        mkdir $DATA_DIR # TODO: when error, another brewp process is working
     fi
 
     if [[ -f "$TAP_LIST" ]]; then
@@ -136,7 +136,7 @@ push() {
     local package_list_path="$PACKAGE_LIST"
 
     if [[ ! -d $CACHE_DIR ]]; then
-        mkdir -p $CACHE_DIR
+        mkdir $CACHE_DIR # TODO: when error, another brewp process is working
     fi
 
     if [[ $# -eq 2 ]]; then
