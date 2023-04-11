@@ -155,11 +155,8 @@ push() {
 
     # Create a package list file if not exist
     touch "$pkg_list"
-    # Put all packages into an array, with a new package
-    # shellcheck disable=SC2034
-    typeset -a pkgs=("${(@f)"$(<"$pkg_list")"}" "$pkg_name")
-    # Update the package list, (u): get unique elements
-    printf '%s\n' "${(u)pkgs[@]}" >! "$pkg_list"
+    # Put all unique packages into the package list, with a new package
+    echo "$pkg_name" | cat "$pkg_list" - | sort -u -o "$pkg_list"
 }
 
 main() {
@@ -170,6 +167,7 @@ main() {
     need_cmd rm
     need_cmd cat
     need_cmd find
+    need_cmd sort
 
     parse_args "$@"
 
