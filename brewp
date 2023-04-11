@@ -167,6 +167,7 @@ main() {
     need_cmd rm
     need_cmd cat
     need_cmd find
+    need_cmd touch
     need_cmd sort
 
     parse_args "$@"
