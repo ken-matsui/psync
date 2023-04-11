@@ -5,24 +5,24 @@ set -u
 usage() {
     cat 1>&2 <<EOF
 brewp
-A useful tool for managing homebrew packages.
+Sync your Homebrew packages across your devices.
 
 USAGE:
     brewp <command|package> [OPTIONS]
 
 COMMANDS:
-    install                 Install uninstalled packages
-    clean                   Remove files created by brewp
+    sync            Install not-installed packages
+    clean           Remove files created by brewp
 
 OPTIONS:
-    -h, --help              Print help information
-    --cask                  Mark as cask packages
-    --tap                   Mark as taps
+    -h, --help      Print help information
+    --cask          Mark as cask packages
+    --tap           Mark as taps
 EOF
 }
 
 say() {
-    echo "brewp: $@"
+    echo "brewp: $*"
 }
 
 err() {
@@ -30,14 +30,14 @@ err() {
     exit 1
 }
 
-check_cmd() {
+has_cmd() {
     command -v "$1" >/dev/null 2>&1
     return $?
 }
 
 need_cmd() {
-    if ! check_cmd "$1"; then
-        err "need '$1' (command not found)"
+    if ! has_cmd "$1"; then
+        err "brewp requires '$1' (command not found)"
     fi
 }
 
@@ -58,6 +58,7 @@ parse_args() {
                 ;;
             -y)
                 # user wants to skip the prompt -- we don't need /dev/tty
+                # shellcheck disable=SC2034
                 need_tty=no
                 ;;
             *)
@@ -82,22 +83,22 @@ clean() {
     rm -rf "$DATA_DIR"
 }
 
-install_impl() {
+sync_impl() {
     local list_path="$1"
     local installed_list_path="$2"
     local list_command="$3"
     local install_command="$4"
 
     local installed_list
-    if test $(find "$installed_list_path" -mtime -1 2>/dev/null); then
-        installed_list="$(cat $installed_list_path)"
+    if test "$(find "$installed_list_path" -mtime -1 2>/dev/null)"; then
+        installed_list="$(cat "$installed_list_path")"
     else
-        installed_list="$(eval brew $list_command)"
+        installed_list="$(eval brew "$list_command")"
         echo "$installed_list" >! "$installed_list_path"
     fi
 
     local is_anything_installed=false
-    for line in "${(@f)"$(<$list_path)"}"
+    for line in ${(@f)"$(<"$list_path")"}
     do
         if [[ ! $installed_list =~ $line ]]; then
             is_anything_installed=true
@@ -107,36 +108,38 @@ install_impl() {
 
     # Update the installed list if anything was installed
     if "${is_anything_installed}"; then
-        installed_list="$(eval brew $list_command)"
+        installed_list="$(eval brew "$list_command")"
         echo "$installed_list" >! "$installed_list_path"
     fi
 }
 
-install() {
+sync() {
     if [[ ! -d $DATA_DIR ]]; then
-        mkdir $DATA_DIR # TODO: when error, another brewp process is working
+        # Sync should be executed by a single thread.
+        mkdir -p "$DATA_DIR"
     fi
 
     if [[ -f "$TAP_LIST" ]]; then
-        install_impl "$TAP_LIST" "$INSTALLED_TAP_LIST" "tap" "tap"
+        sync_impl "$TAP_LIST" "$INSTALLED_TAP_LIST" "tap" "tap"
     fi
     if [[ -f "$PACKAGE_LIST" ]]; then
-        install_impl "$PACKAGE_LIST" "$INSTALLED_PACKAGE_LIST" "list --formula -1" "install"
+        sync_impl "$PACKAGE_LIST" "$INSTALLED_PACKAGE_LIST" "list --formula -1" "install"
     fi
     # Cask is only for macOS
     if [[ -f "$CASK_PACKAGE_LIST" ]] && [[ "$OSTYPE" == darwin* ]]; then
-        install_impl "$CASK_PACKAGE_LIST" "$INSTALLED_CASK_PACKAGE_LIST" "list --cask -1" "install --cask"
+        sync_impl "$CASK_PACKAGE_LIST" "$INSTALLED_CASK_PACKAGE_LIST" "list --cask -1" "install --cask"
     fi
 
     rm -rf "$CACHE_DIR"
 }
 
 push() {
-    local pacakage_name="$1"
+    local package_name="$1"
     local package_list_path="$PACKAGE_LIST"
 
     if [[ ! -d $CACHE_DIR ]]; then
-        mkdir $CACHE_DIR # TODO: when error, another brewp process is working
+        # Pushing packages should be immediate, so we do not consider data race.
+        mkdir -p "$CACHE_DIR"
     fi
 
     if [[ $# -eq 2 ]]; then
@@ -151,7 +154,7 @@ push() {
         fi
     fi
 
-    echo $pacakage_name >>! $package_list_path
+    echo "$package_name" >>! "$package_list_path"
 }
 
 main() {
@@ -162,17 +165,17 @@ main() {
     need_cmd cat
     need_cmd find
 
-    parse_args $@
+    parse_args "$@"
 
     case "${@[1]}" in
-        install)
-            install
+        sync)
+            sync
             ;;
         clean)
             clean
             ;;
         *)
-            push $@
+            push "$@"
             ;;
     esac
 }

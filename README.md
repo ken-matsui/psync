@@ -31,8 +31,11 @@ brewp homebrew/cask-fonts --tap
 # Specify cask pacakages
 brewp alacritty --cask
 
-# Install only specified, not installed packages
-brewp install
+# Install only specified, not-installed packages
+brewp sync
 ```
+
+For better startup time for your shell, keep just specifying packages in your `.zshrc` or etc.
+When you check whether you have un-synced packages, just run `brew sync` after your shell started.
 
 A full example is placed [here](https://github.com/ken-matsui/dotfiles/blob/main/.config/zsh/software_config/brewp.zsh).
