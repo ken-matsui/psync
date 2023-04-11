@@ -70,13 +70,13 @@ parse_args() {
 CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/brewp
 DATA_DIR=${XDG_DATA_HOME:-$HOME/.local/share}/brewp
 
-TAP_LIST="$CACHE_DIR/taps.txt"
-PACKAGE_LIST="$CACHE_DIR/packages.txt"
-CASK_PACKAGE_LIST="$CACHE_DIR/cask_packages.txt"
+TAP_LIST="$DATA_DIR/taps.txt"
+PKG_LIST="$DATA_DIR/pkgs.txt"
+CASK_LIST="$DATA_DIR/casks.txt"
 
-INSTALLED_TAP_LIST="$DATA_DIR/brew-taps.txt"
-INSTALLED_PACKAGE_LIST="$DATA_DIR/brew-packages.txt"
-INSTALLED_CASK_PACKAGE_LIST="$DATA_DIR/brew-cask-packages.txt"
+INSTALLED_TAP_LIST="$CACHE_DIR/taps.txt"
+INSTALLED_PKG_LIST="$CACHE_DIR/pkgs.txt"
+INSTALLED_CASK_LIST="$CACHE_DIR/casks.txt"
 
 clean() {
     rm -rf "$CACHE_DIR"
@@ -114,31 +114,31 @@ sync_impl() {
 }
 
 sync() {
-    if [[ ! -d $DATA_DIR ]]; then
+    if [[ ! -d $CACHE_DIR ]]; then
         # Sync should be executed by a single thread.
-        mkdir -p "$DATA_DIR"
+        mkdir -p "$CACHE_DIR"
     fi
 
     if [[ -f "$TAP_LIST" ]]; then
         sync_impl "$TAP_LIST" "$INSTALLED_TAP_LIST" "tap" "tap"
     fi
-    if [[ -f "$PACKAGE_LIST" ]]; then
-        sync_impl "$PACKAGE_LIST" "$INSTALLED_PACKAGE_LIST" "list --formula -1" "install"
+    if [[ -f "$PKG_LIST" ]]; then
+        sync_impl "$PKG_LIST" "$INSTALLED_PKG_LIST" "list --formula -1" "install"
     fi
     # Cask is only for macOS
-    if [[ -f "$CASK_PACKAGE_LIST" ]] && [[ "$OSTYPE" == darwin* ]]; then
-        sync_impl "$CASK_PACKAGE_LIST" "$INSTALLED_CASK_PACKAGE_LIST" "list --cask -1" "install --cask"
+    if [[ -f "$CASK_LIST" ]] && [[ "$OSTYPE" == darwin* ]]; then
+        sync_impl "$CASK_LIST" "$INSTALLED_CASK_LIST" "list --cask -1" "install --cask"
     fi
 
     rm -rf "$CACHE_DIR"
 }
 
 push() {
-    local package_name="$1"
-    local package_list_path="$PACKAGE_LIST"
+    local pkg_name="$1"
+    local pkg_list="$PKG_LIST"
 
-    if [[ ! -d $CACHE_DIR ]]; then
-        mkdir -p "$CACHE_DIR"
+    if [[ ! -d $DATA_DIR ]]; then
+        mkdir -p "$DATA_DIR"
     fi
 
     if [[ $# -eq 2 ]]; then
@@ -147,13 +147,13 @@ push() {
             if [[ "$OSTYPE" != darwin* ]]; then
                 return
             fi
-            package_list_path="$CASK_PACKAGE_LIST"
+            pkg_list="$CASK_LIST"
         elif [[ "$2" = '--tap' ]]; then
-            package_list_path="$TAP_LIST"
+            pkg_list="$TAP_LIST"
         fi
     fi
 
-    printf "$(cat "$package_list_path")\n%s" "$package_name" | sort | uniq >>! "$package_list_path"
+    printf "$(cat "$pkg_list")\n%s" "$pkg_name" | sort | uniq >>! "$pkg_list"
 }
 
 main() {
