@@ -35,7 +35,7 @@ brewp alacritty --cask
 brewp sync
 ```
 
-For better shell startup time, try to keep just specifying packages in your `.zshrc`.
-After your shell started, just run `brew sync` when you check whether you have un-synced packages.
+For better shell startup time, try to only specify packages in your `.zshrc`.
+After your shell started, just run `brew sync` when you want to check if you have un-synced packages.
 
 A full example is placed [here](https://github.com/ken-matsui/dotfiles/blob/main/.config/zsh/software_config/brewp.zsh).
