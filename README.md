@@ -1,6 +1,6 @@
 # brewp
 
-A useful tool for managing homebrew packages.
+A tool to sync Homebrew packages via Zsh.
 
 ## Installation
 

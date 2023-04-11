@@ -5,7 +5,7 @@ set -u
 usage() {
     cat 1>&2 <<EOF
 brewp
-Sync your Homebrew packages across your devices.
+A tool to sync Homebrew packages via Zsh.
 
 USAGE:
     brewp <command|package> [OPTIONS]
