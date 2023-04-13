@@ -111,7 +111,7 @@ sync() {
     fi
     mkdir -p "$INSTALLED_PATH"
     touch "$CACHE_DIR/.brewp-lock"
-    trap clean EXIT
+    trap clean 1 2 3 6 EXIT
 
     if [[ ! -f $CONFIG_PATH ]]; then
         err "config file not found:" "$CONFIG_PATH"
