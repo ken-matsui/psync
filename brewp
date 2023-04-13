@@ -121,21 +121,24 @@ sync() {
     if [[ -f "$PLAN_TAP_LIST" ]]; then
         echo "=== Taps ==="
         paste -s -d ',' "$PLAN_TAP_LIST"
-        install "$PLAN_TAP_LIST" "$INSTALLED_TAP_LIST" "tap" "tap"
         echo
+
+        install "$PLAN_TAP_LIST" "$INSTALLED_TAP_LIST" "tap" "tap"
     fi
     if [[ -f "$PLAN_PKG_LIST" ]]; then
         echo "=== Packages ==="
         paste -s -d ',' "$PLAN_PKG_LIST"
-        install "$PLAN_PKG_LIST" "$INSTALLED_PKG_LIST" "list --formula -1" "install"
         echo
+
+        install "$PLAN_PKG_LIST" "$INSTALLED_PKG_LIST" "list --formula -1" "install"
     fi
     # Cask is only for macOS
     if [[ "$OSTYPE" == darwin* ]] && [[ -f "$PLAN_CASK_LIST" ]]; then
         echo "=== Casks ==="
         paste -s -d ',' "$PLAN_CASK_LIST"
-        install "$PLAN_CASK_LIST" "$INSTALLED_CASK_LIST" "list --cask -1" "install --cask"
         echo
+
+        install "$PLAN_CASK_LIST" "$INSTALLED_CASK_LIST" "list --cask -1" "install --cask"
     fi
 }
 
