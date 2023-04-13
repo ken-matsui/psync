@@ -11,13 +11,14 @@ USAGE:
     brewp <command|package> [OPTIONS]
 
 COMMANDS:
-    sync            Install not-installed packages
-    clean           Remove files created by brewp
+    add           Add a package to a plan
+    sync          Install not-installed packages
+    clean         Remove files created by brewp
 
 OPTIONS:
-    -h, --help      Print help information
-    --cask          Mark as cask packages
-    --tap           Mark as taps
+    -h, --help    Print help information
+    --cask        Mark as cask packages
+    --tap         Mark as taps
 EOF
 }
 
@@ -142,7 +143,7 @@ sync() {
     fi
 }
 
-push() {
+add() {
     local pkg_name="$1"
     local pkg_list="$PLAN_PKG_LIST"
 
@@ -185,8 +186,12 @@ main() {
         clean)
             clean
             ;;
+        add)
+            add "${@:2}"
+            ;;
         *)
-            push "$@"
+            usage
+            exit 1
             ;;
     esac
 }
