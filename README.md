@@ -19,7 +19,9 @@ zinit light ken-matsui/brewp
 
 ## Usage
 
-`brewp` will automatically install homebrew packages when the shell startup by writing like the following script in your `.zshrc`:
+### `~/.config/brewp/config.zsh`
+
+You should have a config file named `$XDG_CONFIG_HOME/brewp/config.zsh` or `~/.config/brewp/config.zsh`.
 
 ```zsh
 # Specify normal pacakages
@@ -30,12 +32,8 @@ brewp homebrew/cask-fonts --tap
 
 # Specify cask pacakages
 brewp alacritty --cask
-
-# Install only specified, not-installed packages
-brewp sync
 ```
 
-For better shell startup time, try to only specify packages in your `.zshrc`.
-After your shell started, just run `brew sync` when you want to check if you have un-synced packages.
+When you run `brewp sync`, `brewp` automatically installs only specified, not-installed packages.
 
-A full example is placed [here](https://github.com/ken-matsui/dotfiles/blob/main/.config/zsh/software_config/brewp.zsh).
+A full example is placed [here](https://github.com/ken-matsui/dotfiles/blob/main/.config/brewp/config.zsh).
