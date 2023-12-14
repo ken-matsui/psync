@@ -60,6 +60,7 @@ impl Debug for Formula {
 pub(crate) struct Homebrew {
     taps: Option<Vec<Formula>>,
     formulae: Option<Vec<Formula>>,
+    #[cfg(target_os = "macos")]
     casks: Option<Vec<String>>, // casks are only supported on macOS
 }
 
@@ -131,17 +132,14 @@ fn get_installed_casks() -> HashSet<String> {
     casks
 }
 
-#[cfg(not(target_os = "macos"))]
-fn get_installed_casks() -> HashSet<String> {
-    HashSet::new()
-}
-
 struct State {
     installed_taps: HashSet<String>,
     installed_formulae: HashSet<String>,
+    #[cfg(target_os = "macos")]
     installed_casks: HashSet<String>,
     planned_taps: HashSet<Formula>,
     planned_formulae: HashSet<Formula>,
+    #[cfg(target_os = "macos")]
     planned_casks: HashSet<String>,
 }
 
@@ -150,9 +148,11 @@ impl State {
         Self {
             installed_taps: get_installed_taps(),
             installed_formulae: get_installed_formulae(),
+            #[cfg(target_os = "macos")]
             installed_casks: get_installed_casks(),
             planned_taps: HashSet::new(),
             planned_formulae: HashSet::new(),
+            #[cfg(target_os = "macos")]
             planned_casks: HashSet::new(),
         }
     }
