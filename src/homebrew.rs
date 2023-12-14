@@ -131,6 +131,11 @@ fn get_installed_casks() -> HashSet<String> {
     casks
 }
 
+#[cfg(not(target_os = "macos"))]
+fn get_installed_casks() -> HashSet<String> {
+    HashSet::new()
+}
+
 struct State {
     installed_taps: HashSet<String>,
     installed_formulae: HashSet<String>,
