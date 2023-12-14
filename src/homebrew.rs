@@ -28,10 +28,8 @@ impl Formula {
             Formula::Detailed { on, .. } => {
                 if cfg!(target_os = "macos") && on == "macos" {
                     true
-                } else if cfg!(target_os = "linux") && on == "linux" {
-                    true
                 } else {
-                    false
+                    cfg!(target_os = "linux") && on == "linux"
                 }
             }
         }

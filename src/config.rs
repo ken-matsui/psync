@@ -33,7 +33,7 @@ impl Config {
             .find_config_file("config.toml")
             .context("Failed to find config file")?;
 
-        let config = Self::from_file(&config_file)?;
+        let config = Self::from_file(config_file)?;
         Ok(config)
     }
 }
