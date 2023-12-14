@@ -1,39 +1,77 @@
-# brewp
+# psync [![crates.io version](https://img.shields.io/crates/v/psync.svg)](https://crates.io/crates/psync) [![crates.io downloads](https://img.shields.io/crates/d/psync.svg)](https://crates.io/crates/psync)
 
-A tool to sync Homebrew packages via Zsh.
+A tool to sync software across devices
 
 ## Installation
 
-You can install `brewp` using [`zplug`](https://github.com/zplug/zplug):
-
-```zsh
-zplug "ken-matsui/brewp", as:command
-```
-
-Or through [`zinit`](https://github.com/zdharma-continuum/zinit):
-
-```zsh
-zinit ice as"command"
-zinit light ken-matsui/brewp
+```sh
+cargo install psync
 ```
 
 ## Usage
 
-### `~/.config/brewp/config.zsh`
+### `~/.config/psync/config.toml`
 
-You should have a config file named `$XDG_CONFIG_HOME/brewp/config.zsh` or `~/.config/brewp/config.zsh`.
+```toml
+[homebrew]
+taps = [
+    "hashicorp/tap",
+    { name = "messense/macos-cross-toolchains", on = "macos" },
+]
+forumale = [
+    "neovim",
+    { name = "trash", on = "macos" },
+]
+# You do not need to specify `on` for `casks` since casks are only for macOS
+casks = [
+    "alacritty",
+    "discord",
+]
 
-```zsh
-# Specify normal pacakages
-brewp asciinema
+[cargo]
+crates = [
+    "cargo-update",
+    "suggest-command-not-found",
+]
 
-# Specify taps
-brewp homebrew/cask-fonts --tap
-
-# Specify cask pacakages
-brewp alacritty --cask
+[snap]
+snaps = [
+    { name = "alacritty", classic = true },
+    "discord",
+]
 ```
 
-When you run `brewp sync`, `brewp` automatically installs only specified, not-installed packages.
+When you run `psync`, it automatically installs only specified, not-installed packages.
 
-A full example is placed [here](https://github.com/ken-matsui/dotfiles/blob/main/.config/brewp/config.zsh).
+A full example is placed [here](https://github.com/ken-matsui/dotfiles/blob/main/.config/psync/config.toml).
+
+## Contribution
+
+Contributions, including issues and pull requests, are very welcome.
+
+### Build
+
+```bash
+$ cargo build
+```
+
+### Test
+
+```bash
+$ cargo test
+```
+
+### Publish
+
+#### [GitHub Releases](https://github.com/ken-matsui/keep-installed/tags)
+
+```bash
+$ git tag v0.1.0
+$ git push origin v0.1.0
+```
+
+#### [crates.io](https://crates.io/)
+
+```bash
+$ cargo publish
+```

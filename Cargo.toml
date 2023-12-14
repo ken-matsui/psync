@@ -1,0 +1,19 @@
+[package]
+authors = ["Ken Matsui <26405363+ken-matsui@users.noreply.github.com>"]
+description = "A CLI tool to sync packages"
+documentation = "https://docs.rs/psync"
+edition = "2021"
+homepage = "https://github.com/ken-matsui/psync#readme"
+license = "MIT"
+name = "psync"
+readme = "README.md"
+repository = "https://github.com/ken-matsui/psync/"
+version = "0.1.0"
+
+[dependencies]
+anyhow = "1.0"
+os_type = "2.6"
+serde = "1.0.136"
+serde_derive = "1.0.136"
+toml = "0.5"
+xdg = "2.1"
